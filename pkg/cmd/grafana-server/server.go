@@ -3,9 +3,10 @@ package main
 import (
 	"context"
 	"os"
-	"time"
 
 	"golang.org/x/sync/errgroup"
+
+	"net/http"
 
 	"github.com/grafana/grafana/pkg/api"
 	"github.com/grafana/grafana/pkg/log"
@@ -39,6 +40,8 @@ type GrafanaServerImpl struct {
 	shutdownFn    context.CancelFunc
 	childRoutines *errgroup.Group
 	log           log.Logger
+
+	httpServer *api.HttpServer
 }
 
 func (g *GrafanaServerImpl) Start() {
@@ -74,11 +77,13 @@ func (g *GrafanaServerImpl) Start() {
 }
 
 func (g *GrafanaServerImpl) startHttpServer() {
-	httpServer := api.NewHttpServer()
+	g.httpServer = api.NewHttpServer()
 
-	err := httpServer.Start(g.context)
+	err := g.httpServer.Start(g.context)
 
-	if err != nil {
+	if err == http.ErrServerClosed {
+		g.log.Info("server was shutdown gracefully")
+	} else if err != nil {
 		g.log.Error("Fail to start server", "error", err)
 		g.Shutdown(1, "Startup failed")
 		return
@@ -88,8 +93,14 @@ func (g *GrafanaServerImpl) startHttpServer() {
 func (g *GrafanaServerImpl) Shutdown(code int, reason string) {
 	g.log.Info("Shutdown started", "code", code, "reason", reason)
 
+	err := g.httpServer.Shutdown(g.context)
+	if err != nil {
+		g.log.Error("Failed to shutdown server", "error", err)
+	}
+	g.log.Info("when?!")
+
 	g.shutdownFn()
-	err := g.childRoutines.Wait()
+	err = g.childRoutines.Wait()
 
 	g.log.Info("Shutdown completed", "reason", err)
 	log.Close()
