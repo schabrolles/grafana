@@ -2,15 +2,16 @@ version: "{build}"
 
 os: Windows Server 2012 R2
 
-#clone_folder: c:\gopath\src\github.com\grafana\grafana
-clone_folder: c:\go\src\github.com\grafana\grafana
+clone_folder: c:\gopath\src\github.com\grafana\grafana
+#clone_folder: c:\go\src\github.com\grafana\grafana
 
 environment:
   nodejs_version: "6"
-  #GOPATH: c:\gopath
+  GOPATH: c:\gopath
   GOVERSION: 1.8
 
 install:
+  - rmdir c:\go /s /q
   # install nodejs and npm
   - ps: Install-Product node $env:nodejs_version
   - npm install -g yarn --silent
