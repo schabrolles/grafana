@@ -4,12 +4,15 @@ _token=$1
 _commit=$2
 _buildType=$3
 
+
+  "commitId": "${_commit}",
+#
+
 post_data=$(cat <<EOF
 {
   "accountName": "Torkeldegaard",
   "projectSlug": "grafana",
-  "branch": "master",
-  "commitId": "${_commit}",
+  "branch": "windows_build",
   "environmentVariables": {
     "buildType": "${_buildType}"
   }
