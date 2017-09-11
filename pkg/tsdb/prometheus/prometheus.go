@@ -15,7 +15,6 @@ import (
 	"github.com/grafana/grafana/pkg/log"
 	"github.com/grafana/grafana/pkg/models"
 	"github.com/grafana/grafana/pkg/tsdb"
-	tlog "github.com/opentracing/opentracing-go/log"
 	"github.com/prometheus/client_golang/api/prometheus"
 
 	pmodel "github.com/prometheus/common/model"
@@ -103,11 +102,9 @@ func (e *PrometheusExecutor) Execute(ctx context.Context, queries tsdb.QuerySlic
 	}
 
 	span, ctx := opentracing.StartSpanFromContext(ctx, "alerting.prometheus")
-	span.LogFields(
-		tlog.String("expr", query.Expr),
-		tlog.Int64("start_unixnano", int64(query.Start.UnixNano())),
-		tlog.Int64("stop_unixnano", int64(query.End.UnixNano())),
-	)
+	span.SetTag("expr", query.Expr)
+	span.SetTag("start_unixnano", int64(query.Start.UnixNano()))
+	span.SetTag("stop_unixnano", int64(query.End.UnixNano()))
 	defer span.Finish()
 
 	value, err := client.QueryRange(ctx, query.Expr, timeRange)
