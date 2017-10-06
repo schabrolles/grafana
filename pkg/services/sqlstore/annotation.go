@@ -138,7 +138,7 @@ func (r *SqlAnnotationRepo) Find(query *annotations.ItemQuery) ([]*annotations.I
 
 	if len(query.Tags) > 0 {
 		keyValueFilters := []string{}
-		tags := models.ParseTagsString(query.Tags)
+		tags := models.ParseTagsStringArray(query.Tags)
 		for _, tag := range tags {
 			if tag.Value == "" {
 				keyValueFilters = append(keyValueFilters, "(tag.key = ?)")

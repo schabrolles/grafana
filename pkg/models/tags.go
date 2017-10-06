@@ -10,14 +10,8 @@ type Tag struct {
 	Value string
 }
 
-func ParseTagsString(str string) (tags []*Tag) {
-	if strings.Trim(str, " ") == "" {
-		return
-	}
-
-	tagPairs := strings.Split(strings.Trim(str, " "), ",")
-
-	for _, tagPair := range tagPairs {
+func ParseTagsStringArray(tagStrings []string) (tags []*Tag) {
+	for _, tagPair := range tagStrings {
 		var tag Tag
 
 		if strings.Contains(tagPair, ":") {
@@ -36,4 +30,13 @@ func ParseTagsString(str string) (tags []*Tag) {
 	}
 
 	return tags
+}
+
+func ParseTagsString(str string) (tags []*Tag) {
+	if strings.Trim(str, " ") == "" {
+		return
+	}
+
+	tagPairs := strings.Split(strings.Trim(str, " "), ",")
+	return ParseTagsStringArray(tagPairs)
 }
